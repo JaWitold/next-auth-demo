@@ -1,0 +1,14 @@
+{
+  "id": "mig_cmahu9idte68ein48rig",
+  "parentID": "mig_cmahtradte68ein48rhg",
+  "checksum": "1:a718007992f592c3ebc4adcde71961703d87055fe1ae4ad280f4b2cd611d495a",
+  "operations": [
+    {
+      "renameColumn": {
+        "newName": "note",
+        "oldName": "Note",
+        "table": "Notes"
+      }
+    }
+  ]
+}

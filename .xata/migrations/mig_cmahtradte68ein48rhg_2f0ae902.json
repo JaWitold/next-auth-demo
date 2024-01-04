@@ -1,0 +1,18 @@
+{
+  "id": "mig_cmahtradte68ein48rhg",
+  "parentID": "mig_cmahtgqdte68ein48rgg",
+  "checksum": "1:2f0ae902ff88ae1fde39d91ae3e97bc258678407ed14d5f9886d08fe1f132293",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "userId",
+          "type": "string",
+          "notNull": true,
+          "defaultValue": "<empty_user>"
+        },
+        "table": "Notes"
+      }
+    }
+  ]
+}

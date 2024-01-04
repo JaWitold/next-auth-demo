@@ -1,0 +1,6 @@
+{
+  "databaseURL": "https://Witold-Karas-s-workspace-ji4q25.eu-central-1.xata.sh/db/next-auth-demo",
+  "codegen": {
+    "output": "src/xata.ts"
+  }
+}

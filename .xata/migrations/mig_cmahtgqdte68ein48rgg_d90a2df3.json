@@ -1,0 +1,18 @@
+{
+  "id": "mig_cmahtgqdte68ein48rgg",
+  "parentID": "mig_cmaht3qdte68ein48rfg",
+  "checksum": "1:d90a2df3981906cf1db996512bea80c731e725a95db8f910a4737a4efb89653e",
+  "operations": [
+    {
+      "addColumn": {
+        "column": {
+          "name": "Note",
+          "type": "text",
+          "notNull": true,
+          "defaultValue": "<empty>"
+        },
+        "table": "Notes"
+      }
+    }
+  ]
+}
