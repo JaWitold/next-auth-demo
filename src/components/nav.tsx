@@ -1,7 +1,7 @@
 import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { ModeToggle } from "./mode-toggle";
-import { Table } from "lucide-react";
+import { Table, CreditCard } from "lucide-react";
 import { PageSizeDropdown } from "./page-size-dropdown";
 
 export default function Nav() {
@@ -14,6 +14,9 @@ export default function Nav() {
           </h1>
         </div>
         <div className="flex justify-center items-center gap-4">
+          <Link href={"/payment/checkout"}>
+            <CreditCard />
+          </Link>
           <Link href={"/dashboard"}>
             <Table />
           </Link>
