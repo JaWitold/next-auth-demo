@@ -1,12 +1,15 @@
 "use server";
 
-import type { Stripe } from "stripe";
+import type {Stripe} from "stripe";
 
-import { headers } from "next/headers";
+import {headers} from "next/headers";
 
-import { CURRENCY } from "@/config/stripe";
-import { formatAmountForStripe } from "@/utils/stripe-helpers";
-import { stripe } from "@/lib/stripe";
+import {CURRENCY} from "@/config/stripe";
+import {formatAmountForStripe} from "@/utils/stripe-helpers";
+import {stripe} from "@/lib/stripe";
+import {z} from "zod";
+import {stripePriceForm, stripeProductForm} from "@/actions/form-util";
+import {User} from "@clerk/backend";
 
 export async function createCheckoutSession(
     data: FormData,
@@ -52,18 +55,59 @@ export async function createCheckoutSession(
     };
 }
 
-// export async function createPaymentIntent(
-//     data: FormData,
-// ): Promise<{ client_secret: string }> {
-//     const paymentIntent: Stripe.PaymentIntent =
-//         await stripe.paymentIntents.create({
-//             amount: formatAmountForStripe(
-//                 Number(data.get("customDonation") as string),
-//                 CURRENCY,
-//             ),
-//             automatic_payment_methods: { enabled: true },
-//             currency: CURRENCY,
-//         });
-//
-//     return { client_secret: paymentIntent.client_secret as string };
-// }
+export async function createSubscriptionCheckoutSession(
+    {price, userEmail}: { price: Stripe.Price, userEmail: string | null | undefined }
+): Promise<{ client_secret: string | null; url: string | null }> {
+
+    const origin: string = headers().get("origin") as string;
+
+    const checkoutSession: Stripe.Checkout.Session =
+        await stripe.checkout.sessions.create({
+            mode: "subscription",
+            line_items: [
+                {
+                    quantity: 1,
+                    price: price.id
+                },
+            ],
+            success_url: `${origin}/stripe/result?session_id={CHECKOUT_SESSION_ID}`,
+            cancel_url: `${origin}/stripe/store`,
+            ui_mode: "hosted",
+            ...(userEmail && {customer_email: userEmail}),
+        });
+
+    return {
+        client_secret: checkoutSession.client_secret,
+        url: checkoutSession.url,
+    };
+}
+
+export async function searchProducts(
+    value: z.infer<typeof stripeProductForm>
+): Promise<Stripe.Response<Stripe.ApiSearchResultPromise<Stripe.Product>>> {
+
+    // console.log(products.then(s => console.log(s.data.map(x => x.name))))
+    return stripe.products.search({query: `active:'${value.active}' AND name~'${value.name}'`})
+}
+
+export async function searchPrices(
+    value: z.infer<typeof stripePriceForm>
+): Promise<Stripe.Response<Stripe.ApiSearchResultPromise<Stripe.Price>>> {
+    return stripe.prices.search({query: `active:'${value.active}' AND lookup_key:'${value.lookupKey}'`})
+}
+
+export async function createPaymentIntent(
+    data: FormData,
+): Promise<{ client_secret: string }> {
+    const paymentIntent: Stripe.PaymentIntent =
+        await stripe.paymentIntents.create({
+            amount: formatAmountForStripe(
+                Number(data.get("customDonation") as string),
+                CURRENCY,
+            ),
+            automatic_payment_methods: {enabled: true},
+            currency: CURRENCY,
+        });
+
+    return {client_secret: paymentIntent.client_secret as string};
+}

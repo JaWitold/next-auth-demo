@@ -14,7 +14,7 @@ export default async function ResultPage({searchParams}: {
         redirect("/");
     }
 
-    if (!searchParams.session_id){
+    if (!searchParams.session_id) {
         if (process.env.NODE_ENV !== "development") {
             redirect("/dashboard");
         } else {
@@ -27,12 +27,17 @@ export default async function ResultPage({searchParams}: {
             expand: ["line_items", "payment_intent"],
         });
 
-    const paymentIntent = checkoutSession.payment_intent as Stripe.PaymentIntent;
+    const paymentStatus = checkoutSession.payment_status as Stripe.Checkout.Session.PaymentStatus;
 
     return (
         <>
-            <h2>Status: {paymentIntent.status}</h2>
-            <h3>Checkout Session response:</h3>
+            <h2 className={'text-2xl font-semibold'}>
+                Status:
+                <span className={paymentStatus == 'paid' ? 'text-primary' : 'text-destructive'}>
+                    {paymentStatus}
+                </span>
+            </h2>
+            <h3 className={'text-xl'}>Checkout Session response:</h3>
             <PrintObject content={checkoutSession}/>
         </>
     );
