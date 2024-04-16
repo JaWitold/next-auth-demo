@@ -3,6 +3,8 @@ import Link from "next/link";
 import { ModeToggle } from "./mode-toggle";
 import { Table, CreditCard, Store } from "lucide-react";
 import { PageSizeDropdown } from "./page-size-dropdown";
+import {Suspense} from "react";
+import {Skeleton} from "@/components/ui/skeleton";
 
 export default function Nav() {
   return (
@@ -24,7 +26,9 @@ export default function Nav() {
             <Table />
           </Link>
           <ModeToggle />
-          <UserButton afterSignOutUrl="/" />
+          <div className={"h-6 w-6 flex items-center justify-center"}>
+            <UserButton afterSignOutUrl="/"/>
+          </div>
         </div>
       </nav>
     </header>
