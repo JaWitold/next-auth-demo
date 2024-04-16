@@ -1,10 +1,7 @@
 import { UserButton } from "@clerk/nextjs";
 import Link from "next/link";
 import { ModeToggle } from "./mode-toggle";
-import { Table, CreditCard, Store } from "lucide-react";
-import { PageSizeDropdown } from "./page-size-dropdown";
-import {Suspense} from "react";
-import {Skeleton} from "@/components/ui/skeleton";
+import {Table, CreditCard, Store, Wallet} from "lucide-react";
 
 export default function Nav() {
   return (

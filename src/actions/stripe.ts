@@ -8,8 +8,7 @@ import {CURRENCY} from "@/config/stripe";
 import {formatAmountForStripe} from "@/utils/stripe-helpers";
 import {stripe} from "@/lib/stripe";
 import {z} from "zod";
-import {stripePriceForm, stripeProductForm} from "@/actions/form-util";
-import {User} from "@clerk/backend";
+import {stripePriceForm, stripeProductForm, stripeSubscriptionForm} from "@/actions/form-util";
 
 export async function createCheckoutSession(
     data: FormData,
@@ -56,7 +55,11 @@ export async function createCheckoutSession(
 }
 
 export async function createSubscriptionCheckoutSession(
-    {price, userEmail}: { price: Stripe.Price, userEmail: string | null | undefined }
+    {price, userEmail, customerId}: {
+        price: Stripe.Price,
+        userEmail?: string,
+        customerId?: string | null | undefined
+    }
 ): Promise<{ client_secret: string | null; url: string | null }> {
 
     const origin: string = headers().get("origin") as string;
@@ -73,7 +76,8 @@ export async function createSubscriptionCheckoutSession(
             success_url: `${origin}/stripe/result?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${origin}/stripe/store`,
             ui_mode: "hosted",
-            ...(userEmail && {customer_email: userEmail}),
+            ...(customerId && {customer: customerId}),
+            ...(userEmail && !customerId && {customer_email: userEmail}),
         });
 
     return {
@@ -96,18 +100,43 @@ export async function searchPrices(
     return stripe.prices.search({query: `active:'${value.active}' AND lookup_key:'${value.lookupKey}'`})
 }
 
-export async function createPaymentIntent(
-    data: FormData,
-): Promise<{ client_secret: string }> {
-    const paymentIntent: Stripe.PaymentIntent =
-        await stripe.paymentIntents.create({
-            amount: formatAmountForStripe(
-                Number(data.get("customDonation") as string),
-                CURRENCY,
-            ),
-            automatic_payment_methods: {enabled: true},
-            currency: CURRENCY,
-        });
-
-    return {client_secret: paymentIntent.client_secret as string};
+export async function listActiveSubscriptions(
+    value: z.infer<typeof stripeSubscriptionForm>
+): Promise<Stripe.Response<Stripe.ApiListPromise<Stripe.Subscription>>> {
+    return stripe.subscriptions.list({customer: value.customerId, status: "active"})
 }
+
+export async function createBillingPortalSession(
+    {customerId}: {customerId: string}
+): Promise<{ url: string | null }> {
+
+    const origin: string = headers().get("origin") as string;
+    // const referer: string = headers().get("referer") as string;
+
+    const checkoutSession: Stripe.BillingPortal.Session =
+        await stripe.billingPortal.sessions.create({
+            customer: customerId,
+            return_url: `${origin}/dashboard`,
+            // return_url: referer,
+        })
+
+    return {
+        url: checkoutSession.url,
+    };
+}
+
+// export async function createPaymentIntent(
+//     data: FormData,
+// ): Promise<{ client_secret: string }> {
+//     const paymentIntent: Stripe.PaymentIntent =
+//         await stripe.paymentIntents.create({
+//             amount: formatAmountForStripe(
+//                 Number(data.get("customDonation") as string),
+//                 CURRENCY,
+//             ),
+//             automatic_payment_methods: {enabled: true},
+//             currency: CURRENCY,r
+//         });
+//
+//     return {client_secret: paymentIntent.client_secret as string};
+// }

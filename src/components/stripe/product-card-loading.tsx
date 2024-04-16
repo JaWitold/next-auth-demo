@@ -2,7 +2,7 @@ import {Skeleton} from "@/components/ui/skeleton";
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
 
 export default function ProductCardLoading() {
-    return <Card>
+    return <Card className={"w-full lg:w-fit"}>
         <CardHeader>
             <CardTitle><Skeleton className={"w-[160px] h-7"}/></CardTitle>
             <CardDescription><Skeleton className={"w-[236px] h-6"}/></CardDescription>

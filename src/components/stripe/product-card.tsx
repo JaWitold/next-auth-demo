@@ -9,9 +9,10 @@ import {currentUser, SignInButton} from "@clerk/nextjs";
 import {EmailAddress} from "@clerk/backend";
 import SubscriptionCheckoutButton from "@/components/stripe/subscription-checkout-button";
 
-export default async function ProductCard({product, interval}: {
+export default async function ProductCard({product, interval, customerId}: {
     product: Stripe.Product,
-    interval: BillingIntervalType
+    interval: BillingIntervalType,
+    customerId: string | null | undefined
 }) {
     const price = await searchPrices({
         active: true,
@@ -20,7 +21,7 @@ export default async function ProductCard({product, interval}: {
     const user = await currentUser();
     return <>
         {price.data[0] &&
-            <Card>
+            <Card className={"w-full lg:w-fit"}>
                 <CardHeader>
                     <CardTitle>{product.name}</CardTitle>
                     {/*<CardDescription>{product.description}</CardDescription>*/}
@@ -36,7 +37,9 @@ export default async function ProductCard({product, interval}: {
                             <SubscriptionCheckoutButton variant={"outline"}/>
                         </SignInButton> :
                         <SubscriptionCheckoutForm price={price.data[0]}
-                                                  userEmail={(user.emailAddresses.find(item => item.id === user.primaryEmailAddressId) as EmailAddress)?.emailAddress}/>}
+                                                  userEmail={(user.emailAddresses.find(item => item.id === user.primaryEmailAddressId) as EmailAddress)?.emailAddress}
+                                                  customerId={customerId}
+                        />}
                 </CardFooter>
             </Card>
         }
